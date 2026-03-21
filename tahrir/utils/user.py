@@ -1,5 +1,6 @@
 import logging
 from functools import wraps
+from hashlib import sha256
 from urllib.parse import quote_plus
 
 from flask import abort, current_app, g, redirect, request, session, url_for
@@ -66,11 +67,12 @@ def on_authorized(sender, **kwargs):
 
 
 def create_person(nickname: str, email: str) -> bool:
+    openid_email = email
+    avatar = sha256(openid_email.encode("utf-8")).hexdigest()
     if current_app.config["TAHRIR_USE_OPENID_EMAIL"]:
-        avatar = None
+        pass
     else:
         email = f"{nickname}@{current_app.config['TAHRIR_EMAIL_DOMAIN']}"
-        avatar = email
 
     existing = g.tahrirdb.get_person(person_email=email)
     created = False
